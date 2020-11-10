@@ -1,2 +1,2 @@
 # hassio-wireguard
-Home Assistant Community Add-on: WireGuard (with DNS resolve on the fly)
+Home Assistant Community Add-on: WireGuard (with DNS re-resolve on the fly)

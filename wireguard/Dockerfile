@@ -47,11 +47,11 @@ LABEL \
     io.hass.arch="${BUILD_ARCH}" \
     io.hass.type="addon" \
     io.hass.version=${BUILD_VERSION} \
-    maintainer="Alexander Zhloba" \
+    maintainer="Alexander Zhloba <zhlobale@gmail.com>" \
     org.opencontainers.image.title="WireGuard" \
     org.opencontainers.image.description="Fast, modern, secure VPN tunnel" \
     org.opencontainers.image.vendor="Home Assistant Community Add-ons" \
-    org.opencontainers.image.authors="Alexander Zhloba" \
+    org.opencontainers.image.authors="Alexander Zhloba <zhlobale@gmail.com>" \
     org.opencontainers.image.licenses="MIT" \
     org.opencontainers.image.url="https://github.com/zhloba/hassio-wireguard" \
     org.opencontainers.image.source="https://github.com/zhloba/hassio-wireguard" \

@@ -15,7 +15,7 @@ shopt -s nocasematch
 shopt -s extglob
 export LC_ALL=C
 
-Get the interface
+#Get the interface
 INTERFACE="wg0"
 if bashio::config.has_value "server.interface"; then
         INTERFACE=$(bashio::config "server.interface")
@@ -60,3 +60,6 @@ while read -r line || [[ -n $line ]]; do
 	fi
 done < "$CONFIG_FILE"
 process_peer
+
+bashio::log.info "Requesting current status from WireGuard..."
+exec wg show

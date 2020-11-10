@@ -1,5 +1,5 @@
 {
-  "name": "WireGuard",
+  "name": "WireGuard (DNS re-resolve)",
   "version": "dev",
   "slug": "wireguard",
   "description": "Fast, modern, secure VPN tunnel",

@@ -1,4 +1,4 @@
-ARG BUILD_FROM=hassioaddons/wireguard-armv7:0.3.2
+ARG BUILD_FROM=hassioaddons/base:7.2.0
 # hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
@@ -13,7 +13,7 @@ RUN \
         git=2.24.3-r0 \
     \
     && apk add --no-cache \
-        go=1.13.10-r0 \
+        go=1.13.13-r0 \
         libqrencode=4.0.2-r0 \
         openresolv=3.9.2-r0 \
         wireguard-tools=1.0.20200102-r0 \

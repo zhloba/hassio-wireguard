@@ -16,45 +16,47 @@ shopt -s extglob
 export LC_ALL=C
 
 # Get the interface
-INTERFACE="wg0"
-if bashio::config.has_value "server.interface"; then
-    INTERFACE=$(bashio::config "server.interface")
-fi
-CONFIG_FILE="/etc/wireguard/$INTERFACE.conf"
+# INTERFACE="wg0"
+# if bashio::config.has_value "server.interface"; then
+#         INTERFACE=$(bashio::config "server.interface")
+# fi
+# CONFIG_FILE="/etc/wireguard/$INTERFACE.conf"
+
+CONFIG_FILE="$1"
+[[ $CONFIG_FILE =~ ^[a-zA-Z0-9_=+.-]{1,15}$ ]] && CONFIG_FILE="/etc/wireguard/$CONFIG_FILE.conf"
+[[ $CONFIG_FILE =~ /?([a-zA-Z0-9_=+.-]{1,15})\.conf$ ]]
+INTERFACE="${BASH_REMATCH[1]}"
 
 bashio::log.info "Checking endpoint DNS for $INTERFACE"
 bashio::log.debug "$CONFIG_FILE"
 
 process_peer() {
-        [[ $PEER_SECTION -ne 1 || -z $PUBLIC_KEY || -z $ENDPOINT ]] && return 0
-        [[ $(wg show "$INTERFACE" latest-handshakes) =~ ${PUBLIC_KEY//+/\\+}\   ([0-9]+) ]] || return 0
-        (( ($(date +%s) - ${BASH_REMATCH[1]}) > 135 )) || return 0
-        wg set "$INTERFACE" peer "$PUBLIC_KEY" endpoint "$ENDPOINT"
-        reset_peer_section
-        bashio::log.info "Reresolve DNS is done."                                                       
-}                                                                                                      
-                                                                                                       
-reset_peer_section() {                                                                                 
-        PEER_SECTION=0                                                                                 
-        PUBLIC_KEY=""                                                                                  
-        ENDPOINT=""                                                                                    
-}                                                                                                      
-                                                                                                       
-reset_peer_section                                                                                     
-while read -r line || [[ -n $line ]]; do                                                               
-        stripped="${line%%\#*}"                                                                        
-        key="${stripped%%=*}"; key="${key##*([[:space:]])}"; key="${key%%*([[:space:]])}"              
-        value="${stripped#*=}"; value="${value##*([[:space:]])}"; value="${value%%*([[:space:]])}"     
-        [[ $key == "["* ]] && { process_peer; reset_peer_section; }                                    
-        [[ $key == "[Peer]" ]] && PEER_SECTION=1                                                       
-        if [[ $PEER_SECTION -eq 1 ]]; then                                                             
-                case "$key" in                                                                         
-                PublicKey) PUBLIC_KEY="$value"; continue ;;                                            
-                Endpoint) ENDPOINT="$value"; continue ;;                                               
-                esac                                                                                   
-        fi                                                                                        
-done < "$CONFIG_FILE"                                                                             
-process_peer
+	[[ $PEER_SECTION -ne 1 || -z $PUBLIC_KEY || -z $ENDPOINT ]] && return 0
+	[[ $(wg show "$INTERFACE" latest-handshakes) =~ ${PUBLIC_KEY//+/\\+}\	([0-9]+) ]] || return 0
+	(( ($(date +%s) - ${BASH_REMATCH[1]}) > 135 )) || return 0
+	wg set "$INTERFACE" peer "$PUBLIC_KEY" endpoint "$ENDPOINT"
+	reset_peer_section
+        bashio::log.info "Resolve DNS is done."
+}
 
-bashio::log.info "Requesting current status from WireGuard..."
-exec wg show
+reset_peer_section() {
+	PEER_SECTION=0
+	PUBLIC_KEY=""
+	ENDPOINT=""
+}
+
+reset_peer_section
+while read -r line || [[ -n $line ]]; do
+	stripped="${line%%\#*}"
+	key="${stripped%%=*}"; key="${key##*([[:space:]])}"; key="${key%%*([[:space:]])}"
+	value="${stripped#*=}"; value="${value##*([[:space:]])}"; value="${value%%*([[:space:]])}"
+	[[ $key == "["* ]] && { process_peer; reset_peer_section; }
+	[[ $key == "[Peer]" ]] && PEER_SECTION=1
+	if [[ $PEER_SECTION -eq 1 ]]; then
+		case "$key" in
+		PublicKey) PUBLIC_KEY="$value"; continue ;;
+		Endpoint) ENDPOINT="$value"; continue ;;
+		esac
+	fi
+done < "$CONFIG_FILE"
+process_peer
